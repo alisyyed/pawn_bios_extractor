@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 cmake_policy(VERSION 3.14)
 project(pawn VERSION 0.2)
- 
+
 # System checks
 if(NOT UNIX)
   # Pawn currently only supports Linux. The BSDs _may_ also work.
@@ -32,9 +32,12 @@ endif()
 # Find the Git revision number, if applicable
 set(pawn_REVISION unknown)
 if(Git_FOUND)
-  execute_process(COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
-                  WORKING_DIRECTORY "${PAWN_SOURCE_DIR}"
-                  OUTPUT_VARIABLE pawn_REVISION ERROR_QUIET)
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" rev-parse --short HEAD
+    WORKING_DIRECTORY "${PAWN_SOURCE_DIR}"
+    OUTPUT_VARIABLE pawn_REVISION
+    ERROR_QUIET
+  )
   if(NOT pawn_REVISION STREQUAL "")
     string(STRIP "${pawn_REVISION}" pawn_REVISION)
   else()
