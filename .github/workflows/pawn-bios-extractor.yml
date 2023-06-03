@@ -1,0 +1,71 @@
+name: pawn-bios-extractor
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Build Environment
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            sudo apt-get update
+            sudo apt-get install -y build-essential ninja-build
+          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            choco install -y visualstudio2019buildtools
+            choco install -y ninja
+          fi
+
+      - name: Configure CMake
+        run: cmake -Bbuild -S. -G Ninja -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+
+      - name: Build
+        run: cmake --build build --config ${BUILD_TYPE}
+
+      - name: Package
+        run: |
+          mkdir -p package
+
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            cp build/pawn_bios_extractor package/
+            tar -czf package/pawn_bios_extractor_linux.tar.gz -C package .
+            echo "::set-output name=package::package/pawn_bios_extractor_linux.tar.gz"
+          fi
+
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            copy build\pawn_bios_extractor.exe package\
+            powershell -Command "Compress-Archive -Path package -DestinationPath package\pawn_bios_extractor_windows.zip"
+            echo "::set-output name=package::package\pawn_bios_extractor_windows.zip"
+          fi
+
+      - name: Test
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # Add your Linux-specific testing commands here
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: pawn-bios-extractor-artifacts
+          path: package
