@@ -36,10 +36,10 @@ jobs:
           choco install -y ninja
 
       - name: Configure CMake
-        run: cmake -Bbuild -S. -G Ninja -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+        run: cmake -Bbuild -S. -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build
-        run: cmake --build build --config ${BUILD_TYPE}
+        run: cmake --build build --config $BUILD_TYPE
 
       - name: Package
         run: |
@@ -67,3 +67,13 @@ jobs:
         with:
           name: pawn-bios-extractor-artifacts
           path: package
+
+      - name: Deploy
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # Add your deployment commands for Linux here
+
+      - name: Deploy
+        if: matrix.os == 'windows-latest'
+        run: |
+          # Add your deployment commands for Windows here
