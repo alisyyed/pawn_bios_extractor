@@ -23,6 +23,9 @@ jobs:
           - windows-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Install Dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -60,7 +63,10 @@ jobs:
       - name: Test
         if: matrix.os == 'ubuntu-latest'
         run: |
-          # Add your Linux-specific testing commands here
+          # Run unit tests
+          ctest --build-config "${BUILD_TYPE}" --output-on-failure
+          # Run integration tests
+          # Add your integration testing commands here
 
       - name: Artifacts
         uses: actions/upload-artifact@v2
@@ -71,9 +77,19 @@ jobs:
       - name: Deploy
         if: matrix.os == 'ubuntu-latest'
         run: |
+          # Deploy to Linux servers
           # Add your deployment commands for Linux here
+          ssh user@server 'mkdir -p /path/to/deploy'
+          scp package/pawn_bios_extractor_linux.tar.gz user@server:/path/to/deploy
 
       - name: Deploy
         if: matrix.os == 'windows-latest'
         run: |
+          # Deploy to Windows servers
           # Add your deployment commands for Windows here
+          robocopy package \\server\path /MIR
+
+      - name: Cleanup
+        run: |
+          # Perform cleanup tasks
+          # Add any necessary cleanup commands here
