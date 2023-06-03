@@ -23,19 +23,17 @@ jobs:
           - windows-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Setup Build Environment
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'windows-latest'
+      - name: Install Dependencies
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            sudo apt-get update
-            sudo apt-get install -y build-essential ninja-build
-          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            choco install -y visualstudio2019buildtools
-            choco install -y ninja
-          fi
+          sudo apt-get update
+          sudo apt-get install -y build-essential ninja-build
+
+      - name: Install Dependencies
+        if: matrix.os == 'windows-latest'
+        run: |
+          choco install -y visualstudio2019buildtools
+          choco install -y ninja
 
       - name: Configure CMake
         run: cmake -Bbuild -S. -G Ninja -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
@@ -56,7 +54,7 @@ jobs:
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             copy build\pawn_bios_extractor.exe package\
             powershell -Command "Compress-Archive -Path package -DestinationPath package\pawn_bios_extractor_windows.zip"
-            echo "::set-output name=package::package\pawn_bios_extractor_windows.zip"
+            echo "::set-output name=package::package/pawn_bios_extractor_windows.zip"
           fi
 
       - name: Test
@@ -64,7 +62,7 @@ jobs:
         run: |
           # Add your Linux-specific testing commands here
 
-      - name: Upload Artifacts
+      - name: Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: pawn-bios-extractor-artifacts
