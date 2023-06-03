@@ -23,9 +23,6 @@ jobs:
           - windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Install Dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -38,16 +35,20 @@ jobs:
           choco install -y visualstudio2019buildtools
           choco install -y ninja
 
+      - name: Create Build Directory
+        run: mkdir build
+
       - name: Configure CMake
         run: cmake -Bbuild -S. -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 
       - name: Build
         run: cmake --build build --config $BUILD_TYPE
 
-      - name: Package
-        run: |
-          mkdir -p package
+      - name: Create Package Directory
+        run: mkdir -p package
 
+      - name: Copy Executable and Create Archive
+        run: |
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
             cp build/pawn_bios_extractor package/
             tar -czf package/pawn_bios_extractor_linux.tar.gz -C package .
@@ -63,10 +64,7 @@ jobs:
       - name: Test
         if: matrix.os == 'ubuntu-latest'
         run: |
-          # Run unit tests
-          ctest --build-config "${BUILD_TYPE}" --output-on-failure
-          # Run integration tests
-          # Add your integration testing commands here
+          # Add your Linux-specific testing commands here
 
       - name: Artifacts
         uses: actions/upload-artifact@v2
@@ -77,19 +75,9 @@ jobs:
       - name: Deploy
         if: matrix.os == 'ubuntu-latest'
         run: |
-          # Deploy to Linux servers
           # Add your deployment commands for Linux here
-          ssh user@server 'mkdir -p /path/to/deploy'
-          scp package/pawn_bios_extractor_linux.tar.gz user@server:/path/to/deploy
 
       - name: Deploy
         if: matrix.os == 'windows-latest'
         run: |
-          # Deploy to Windows servers
           # Add your deployment commands for Windows here
-          robocopy package \\server\path /MIR
-
-      - name: Cleanup
-        run: |
-          # Perform cleanup tasks
-          # Add any necessary cleanup commands here
