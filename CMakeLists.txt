@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 cmake_policy(VERSION 3.14)
 project(pawn VERSION 0.2)
-
+ 
 # System checks
 if(NOT UNIX)
   # Pawn currently only supports Linux. The BSDs _may_ also work.
