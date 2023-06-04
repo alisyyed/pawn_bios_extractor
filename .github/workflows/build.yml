@@ -1,4 +1,6 @@
-name: pawn-bios-extractor
+# Revised version of build.yml
+
+name: Pawn BIOS Dumping Tool
 
 on:
   push:
@@ -8,81 +10,50 @@ on:
     branches:
       - main
 
-env:
-  BUILD_TYPE: Release
-
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-
+  build-linux:
+    runs-on: ubuntu-latest
+    
     steps:
+      - name: Set up CMake
+        uses: actions/setup-cmake@v1
+        with:
+          cmake-version: '3.14'
+
+      - name: Set up Ninja
+        uses: mesonbuild/setup-ninja@v1
+
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install Dependencies
-        if: matrix.os == 'ubuntu-latest'
+      - name: Build project
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential ninja-build
-
-      - name: Install Dependencies
-        if: matrix.os == 'windows-latest'
-        run: |
-          choco install -y visualstudio2019buildtools
-          choco install -y ninja
-
-      - name: Configure CMake
-        run: |
-          mkdir build
-          cd build
+          mkdir build && cd build
           cmake ..
-          cd ..
-
-      - name: Build
+          cmake --build .
+          
+      - name: Run tests
         run: |
           cd build
-          cmake --build .
+          ctest
 
-      - name: Package
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v1.0.0
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build project
         run: |
-          mkdir -p package
+          mkdir build && cd build
+          cmake ..
+          cmake --build . --config Release
 
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            cp build/pawn_bios_extractor package/
-            tar -czf package/pawn_bios_extractor_linux.tar.gz -C package .
-            echo "::set-output name=package::package/pawn_bios_extractor_linux.tar.gz"
-          fi
-
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            copy build\pawn_bios_extractor.exe package\
-            powershell -Command "Compress-Archive -Path package -DestinationPath package\pawn_bios_extractor_windows.zip"
-            echo "::set-output name=package::package/pawn_bios_extractor_windows.zip"
-          fi
-
-      - name: Test
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run tests
         run: |
-          # Add your Linux-specific testing commands here
-
-      - name: Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: pawn-bios-extractor-artifacts
-          path: package
-
-      - name: Deploy
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          # Add your deployment commands for Linux here
-
-      - name: Deploy
-        if: matrix.os == 'windows-latest'
-        run: |
-          # Add your deployment commands for Windows here
+          cd build
+          ctest
