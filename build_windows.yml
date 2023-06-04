@@ -1,0 +1,39 @@
+# Windows Build Configuration
+name: Windows Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Set up build environment
+        uses: actions/checkout@v2
+
+      - name: Install CMake
+        uses: Kitware/setup-cmake@v1
+
+      - name: Install Ninja
+        run: choco install ninja -y
+
+      - name: Configure CMake
+        run: cmake -B build -S .
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: cmake --build build --target test
+
+      - name: Create artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows Build Artifact
+          path: build/pawn/pawn.exe
