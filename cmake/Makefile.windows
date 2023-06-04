@@ -1,0 +1,32 @@
+# Windows Makefile
+
+CC = gcc
+CXX = g++
+CFLAGS = -Wall -Wextra
+CXXFLAGS = -Wall -Wextra
+
+# Object files
+OBJS = chipset.o physical_memory.o pawn.o pci.o
+PLATFORM_OBJS = chipset_windows.o physical_memory_windows.o
+
+# Compiler flags
+CFLAGS += -I./
+CXXFLAGS += -I./
+
+# Platform-specific object files and libraries
+ifeq ($(OS),Windows_NT)
+    OBJS += $(PLATFORM_OBJS)
+    LIBS = psapi user32
+endif
+
+# Build rules
+all: pawn
+
+pawn: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@ $(LIBS)
+
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) pawn
