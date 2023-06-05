@@ -13,25 +13,29 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Set up CMake
-        uses: actions/setup-cmake@v1
-        with:
-          cmake-version: '3.14'
-
-      - name: Set up Ninja
-        uses: mesonbuild/setup-ninja@v1
-
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Install CMake
+        run: |
+          wget -O cmake-linux.tar.gz https://cmake.org/files/v3.21/cmake-3.21.3-linux-x86_64.tar.gz
+          tar -xf cmake-linux.tar.gz
+          export PATH="$PWD/cmake-3.21.3-linux-x86_64/bin:$PATH"
+
+      - name: Install Ninja
+        run: |
+          wget -O ninja-linux.zip https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-linux.zip
+          unzip ninja-linux.zip
+          export PATH="$PWD:$PATH"
 
       - name: Build project
         run: |
           mkdir build && cd build
           cmake ..
           cmake --build .
-          
+
       - name: Run tests
         run: |
           cd build
@@ -39,13 +43,22 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
-    
-    steps:
-      - name: Set up MSBuild
-        uses: microsoft/setup-msbuild@v1.0.0
 
+    steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Install CMake
+        run: |
+          wget -O cmake-windows.zip https://cmake.org/files/v3.21/cmake-3.21.3-windows-x86_64.zip
+          Expand-Archive -Path cmake-windows.zip -DestinationPath .
+          $env:PATH = "$PWD/cmake-3.21.3-windows-x86_64/bin;$env:PATH"
+
+      - name: Install Ninja
+        run: |
+          wget -O ninja-windows.zip https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-windows.zip
+          Expand-Archive -Path ninja-windows.zip -DestinationPath .
+          $env:PATH = "$PWD;$env:PATH"
 
       - name: Build project
         run: |
