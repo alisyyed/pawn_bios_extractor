@@ -101,3 +101,4 @@ target_link_libraries(pawn
 )
 
 install(TARGETS pawn DESTINATION ${CMAKE_INSTALL_SBINDIR})
+find_package(absl CONFIG REQUIRED)
