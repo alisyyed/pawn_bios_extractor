@@ -101,4 +101,3 @@ target_link_libraries(pawn
 )
 
 install(TARGETS pawn DESTINATION ${CMAKE_INSTALL_SBINDIR})
-find_package(absl CONFIG REQUIRED PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
