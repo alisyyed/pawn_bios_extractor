@@ -9,4 +9,4 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems
 
 # Include the subdirectory containing the other CMakeLists.txt.
 add_subdirectory(pawn)
-add_subdirectory(cmake) # Add this line to include the cmake directory
+add_subdirectory(cmake/absl) # Add this line to include the Abseil library
