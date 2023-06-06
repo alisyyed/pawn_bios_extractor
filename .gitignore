@@ -9,3 +9,9 @@
 # Build artifacts
 build/
 obj-x86_64-linux-gnu/
+
+# Ignore vcpkg build artifacts
+vcpkg/buildtrees/
+vcpkg/downloads/
+vcpkg/installed/
+vcpkg/packages/
