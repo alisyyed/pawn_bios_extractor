@@ -1,0 +1,11 @@
+{
+  "name": "pawn-bios-extractor",
+  "version-string": "0.1.0",
+  "dependencies": [
+    {
+      "name": "abseil",
+      "features": [],
+      "platform": "!(windows | linux) | x64"
+    }
+  ]
+}
